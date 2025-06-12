@@ -3,45 +3,70 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\HomeController;
-use App\Http\Controllers\UserController;
-use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\UserProfileController;
 use App\Http\Controllers\RentalController;
 use App\Http\Controllers\TransaksiController;
+use App\Http\Controllers\UserProfileController;
+use App\Http\Controllers\Admin\AdminMotorController; // <-- Tambahkan ini
 
+/*
+|--------------------------------------------------------------------------
+| Web Routes
+|--------------------------------------------------------------------------
+|
+| Di sini Anda bisa mendaftarkan web routes untuk aplikasi Anda.
+|
+*/
 
+// Route untuk halaman landing atau redirect ke login jika belum login
+Route::get('/', function () {
+    if (auth()->check()) {
+        return redirect()->route('homepage');
+    }
+    return redirect()->route('login');
+});
 
-// Redirect ke login jika mengakses root ('/')
-Route::get('/', fn() => redirect()->route('login'));
+// Grup route untuk tamu (pengguna yang belum login)
+Route::middleware('guest')->group(function () {
+    Route::get('login', [AuthController::class, 'showLogin'])->name('login');
+    Route::post('login', [AuthController::class, 'processLogin']);
+    Route::get('register', [AuthController::class, 'showRegister'])->name('register');
+    Route::post('register', [AuthController::class, 'processRegister']);
+});
 
-// Grup middleware untuk pengguna yang sudah login
-Route::middleware(['auth'])->group(function () {
-    Route::get('/home', [HomeController::class, 'index'])->name('homepage'); // Homepage / Dashboard setelah login
+// Grup route untuk pengguna yang sudah terotentikasi (login)
+Route::middleware('auth')->group(function () {
+    // Halaman utama setelah login
+    Route::get('/home', [HomeController::class, 'index'])->name('homepage');
+    
+    // Logout
+    Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+
+    // Halaman Profil Pengguna
     Route::get('/profile', [UserProfileController::class, 'index'])->name('userprofile');
-    Route::put('/profile/update', [ProfileController::class, 'update']);
-    Route::post('/logout', [AuthController::class, 'logout'])->name('logout'); // Logout
+    Route::post('/upload_profile', [UserProfileController::class, 'uploadProfile'])->name('upload_profile');
+    // Note: Anda bisa gabungkan logic update profil di dalam UserProfileController
+
+    // Halaman Sewa Motor
     Route::get('/sewa-motor', [RentalController::class, 'index'])->name('sewa-motor');
-    Route::post('/sewa-motor/{id}', [RentalController::class, 'rent'])->name('sewa-motor.rent');
-
-    // ✅ Route untuk upload profile
-    Route::post('/upload_profile', [ProfileController::class, 'uploadProfile'])->name('upload_profile');
-    Route::get('/upload_profile', function () {
-        return view('upload_profile', ['user' => Auth::user()]);
-    })->middleware('auth')->name('upload_profile');
+    
+    // Alur Transaksi
+    Route::get('/transaksi/sewa/{motor}', [TransaksiController::class, 'create'])->name('transaksi.create');
+    Route::post('/transaksi/store', [TransaksiController::class, 'store'])->name('transaksi.store');
+    Route::get('/transaksi/sukses/{transaksi}', [TransaksiController::class, 'sukses'])->name('transaksi.sukses');
 });
 
-// Grup middleware untuk guest (tamu) yang belum login
-Route::middleware(['guest'])->group(function () {
-    // Routes untuk Login
-    Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
-    Route::post('/login', [AuthController::class, 'processLogin'])->name('login.process');
 
-    // Routes untuk Register
-    Route::get('/register', [AuthController::class, 'showRegister'])->name('register');
-    Route::post('/register', [AuthController::class, 'processRegister'])->name('register.process');
+// ======================================================
+// == GRUP ROUTE BARU UNTUK HALAMAN ADMIN ==
+// ======================================================
+Route::prefix('admin')->middleware(['auth'])->name('admin.')->group(function () {
+    
+    // Dasbor Admin bisa ditambahkan di sini
+    // Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
+
+    // Route untuk CRUD Motor
+    Route::resource('motors', AdminMotorController::class);
+
+    // Route khusus untuk update status ketersediaan
+    Route::patch('/motors/{motor}/status', [AdminMotorController::class, 'updateStatus'])->name('motors.updateStatus');
 });
-
-  //Route untuk alur transaksi
-Route::get('/transaksi/sewa/{motor}', [TransaksiController::class, 'create'])->name('transaksi.create');
-Route::post('/transaksi/store', [TransaksiController::class, 'store'])->name('transaksi.store');
-Route::get('/transaksi/sukses/{transaksi}', [TransaksiController::class, 'sukses'])->name('transaksi.sukses');

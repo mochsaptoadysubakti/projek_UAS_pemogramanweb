@@ -10,6 +10,27 @@
         html {
             scroll-behavior: smooth;
         }
+        /* Tambahkan style untuk motor yang tidak tersedia */
+        .motor-disewa {
+            position: relative;
+            opacity: 0.6; /* Membuat kartu tampak redup */
+        }
+        .motor-disewa::after {
+            content: 'DISEWA';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-15deg);
+            background-color: rgba(239, 68, 68, 0.8); /* Merah dengan transparansi */
+            color: white;
+            font-weight: bold;
+            font-size: 1.5rem;
+            padding: 0.5rem 2rem;
+            border: 2px solid white;
+            border-radius: 0.5rem;
+            pointer-events: none; /* Agar tidak mengganggu klik */
+            z-index: 10;
+        }
     </style>
 </head>
 <body class="bg-gray-900 text-white">
@@ -50,13 +71,17 @@
         <h3 class="text-2xl font-semibold text-center">Motor Sport</h3>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
             @foreach($motors->where('jenis', 'Sport') as $motor)
-                <div class="bg-gray-700 p-4 rounded-lg text-center flex flex-col justify-between">
+                <div class="bg-gray-700 p-4 rounded-lg text-center flex flex-col justify-between @if($motor->status != 'Tersedia') motor-disewa @endif">
                     <div>
                         <img src="{{ asset('images/' . $motor->gambar) }}" alt="{{ $motor->nama }}" class="mx-auto h-48 object-cover mb-4 rounded">
                         <h4 class="text-xl mt-2 font-semibold">{{ $motor->nama }}</h4>
                         <p class="text-gray-300">Rp {{ number_format($motor->harga, 0, ',', '.') }}/hari</p>
                     </div>
-                    <a href="{{ route('transaksi.create', ['motor' => $motor->id]) }}" class="bg-blue-500 hover:bg-blue-600 px-4 py-2 rounded mt-4 inline-block text-white font-semibold transition-colors">Sewa</a>
+                    @if($motor->status == 'Tersedia')
+                        <a href="{{ route('transaksi.create', ['motor' => $motor->id]) }}" class="bg-blue-500 hover:bg-blue-600 px-4 py-2 rounded mt-4 inline-block text-white font-semibold transition-colors">Sewa</a>
+                    @else
+                        <button class="bg-gray-500 px-4 py-2 rounded mt-4 inline-block text-white font-semibold cursor-not-allowed" disabled>Disewa</button>
+                    @endif
                 </div>
             @endforeach
         </div>
@@ -66,13 +91,17 @@
         <h3 class="text-2xl font-semibold text-center">Motor Bebek</h3>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
             @foreach($motors->where('jenis', 'Bebek') as $motor)
-                <div class="bg-gray-700 p-4 rounded-lg text-center flex flex-col justify-between">
+                 <div class="bg-gray-700 p-4 rounded-lg text-center flex flex-col justify-between @if($motor->status != 'Tersedia') motor-disewa @endif">
                     <div>
                         <img src="{{ asset('images/' . $motor->gambar) }}" alt="{{ $motor->nama }}" class="mx-auto h-48 object-cover mb-4 rounded">
                         <h4 class="text-xl mt-2 font-semibold">{{ $motor->nama }}</h4>
                         <p class="text-gray-300">Rp {{ number_format($motor->harga, 0, ',', '.') }}/hari</p>
                     </div>
-                    <a href="{{ route('transaksi.create', ['motor' => $motor->id]) }}" class="bg-blue-500 hover:bg-blue-600 px-4 py-2 rounded mt-4 inline-block text-white font-semibold transition-colors">Sewa</a>
+                     @if($motor->status == 'Tersedia')
+                        <a href="{{ route('transaksi.create', ['motor' => $motor->id]) }}" class="bg-blue-500 hover:bg-blue-600 px-4 py-2 rounded mt-4 inline-block text-white font-semibold transition-colors">Sewa</a>
+                    @else
+                        <button class="bg-gray-500 px-4 py-2 rounded mt-4 inline-block text-white font-semibold cursor-not-allowed" disabled>Disewa</button>
+                    @endif
                 </div>
             @endforeach
         </div>
@@ -82,13 +111,17 @@
         <h3 class="text-2xl font-semibold text-center">Motor Matic</h3>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
             @foreach($motors->where('jenis', 'Matic') as $motor)
-                <div class="bg-gray-700 p-4 rounded-lg text-center flex flex-col justify-between">
+                 <div class="bg-gray-700 p-4 rounded-lg text-center flex flex-col justify-between @if($motor->status != 'Tersedia') motor-disewa @endif">
                     <div>
                         <img src="{{ asset('images/' . $motor->gambar) }}" alt="{{ $motor->nama }}" class="mx-auto h-48 object-cover mb-4 rounded">
                         <h4 class="text-xl mt-2 font-semibold">{{ $motor->nama }}</h4>
                         <p class="text-gray-300">Rp {{ number_format($motor->harga, 0, ',', '.') }}/hari</p>
                     </div>
-                    <a href="{{ route('transaksi.create', ['motor' => $motor->id]) }}" class="bg-blue-500 hover:bg-blue-600 px-4 py-2 rounded mt-4 inline-block text-white font-semibold transition-colors">Sewa</a>
+                     @if($motor->status == 'Tersedia')
+                        <a href="{{ route('transaksi.create', ['motor' => $motor->id]) }}" class="bg-blue-500 hover:bg-blue-600 px-4 py-2 rounded mt-4 inline-block text-white font-semibold transition-colors">Sewa</a>
+                    @else
+                        <button class="bg-gray-500 px-4 py-2 rounded mt-4 inline-block text-white font-semibold cursor-not-allowed" disabled>Disewa</button>
+                    @endif
                 </div>
             @endforeach
         </div>
