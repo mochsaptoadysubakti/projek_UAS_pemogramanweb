@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Motor;
+use App\Models\Payment; // <-- Tambahkan ini jika Anda belum punya model Payment
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -96,20 +97,50 @@ class AdminMotorController extends Controller
         if ($motor->gambar) {
             Storage::delete('public/motors/' . $motor->gambar);
         }
-        
+
         $motor->delete();
         return redirect()->route('admin.motors.index')->with('success', 'Motor berhasil dihapus!');
     }
-    
+
     /**
      * Mengubah status ketersediaan motor.
      */
     public function updateStatus(Request $request, Motor $motor)
     {
         $request->validate(['status' => 'required|in:Tersedia,Disewa']);
-        
+
         $motor->update(['status' => $request->status]);
 
         return redirect()->back()->with('success', 'Status motor berhasil diubah!');
+    }
+
+    /**
+     * Menampilkan halaman verifikasi pembayaran.
+     */
+    public function showPaymentVerification()
+    {
+        $payments = Payment::where('status', 'pending')->get(); // Contoh: ambil pembayaran dengan status 'pending'
+        return view('admin.verifikasi_pembayaran', compact('payments')); // Pastikan nama viewnya benar
+    }
+
+    /**
+     * Memproses verifikasi pembayaran (approve/reject).
+     */
+    public function processPaymentVerification(Request $request)
+    {
+        $request->validate([
+            'rental_id' => 'required|exists:rentals,id', // Pastikan rental_id ada di tabel rentals
+            'status' => 'required|in:approved,rejected',
+            'reason' => 'nullable|string|sometimes', // Alasan penolakan (opsional)
+        ]);
+
+        $payment = Payment::where('rental_id', $request->rental_id)->where('status', 'pending')->firstOrFail();
+
+        $payment->update([
+            'status' => $request->status,
+            'notes' => $request->reason ?? null, // Simpan alasan jika ada
+        ]);
+
+        return redirect()->back()->with('success', 'Status pembayaran berhasil diperbarui!');
     }
 }

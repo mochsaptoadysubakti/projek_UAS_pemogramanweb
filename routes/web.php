@@ -6,7 +6,8 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\RentalController;
 use App\Http\Controllers\TransaksiController;
 use App\Http\Controllers\UserProfileController;
-use App\Http\Controllers\Admin\AdminMotorController; // <-- Tambahkan ini
+use App\Http\Controllers\Admin\AdminMotorController;
+use App\Http\Controllers\Admin\AdminPaymentController;
 
 /*
 |--------------------------------------------------------------------------
@@ -37,7 +38,7 @@ Route::middleware('guest')->group(function () {
 Route::middleware('auth')->group(function () {
     // Halaman utama setelah login
     Route::get('/home', [HomeController::class, 'index'])->name('homepage');
-    
+
     // Logout
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
@@ -48,7 +49,7 @@ Route::middleware('auth')->group(function () {
 
     // Halaman Sewa Motor
     Route::get('/sewa-motor', [RentalController::class, 'index'])->name('sewa-motor');
-    
+
     // Alur Transaksi
     Route::get('/transaksi/sewa/{motor}', [TransaksiController::class, 'create'])->name('transaksi.create');
     Route::post('/transaksi/store', [TransaksiController::class, 'store'])->name('transaksi.store');
@@ -60,7 +61,7 @@ Route::middleware('auth')->group(function () {
 // == GRUP ROUTE BARU UNTUK HALAMAN ADMIN ==
 // ======================================================
 Route::prefix('admin')->middleware(['auth'])->name('admin.')->group(function () {
-    
+
     // Dasbor Admin bisa ditambahkan di sini
     // Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
 
@@ -69,4 +70,7 @@ Route::prefix('admin')->middleware(['auth'])->name('admin.')->group(function () 
 
     // Route khusus untuk update status ketersediaan
     Route::patch('/motors/{motor}/status', [AdminMotorController::class, 'updateStatus'])->name('motors.updateStatus');
+
+    // Route untuk Verifikasi Pembayaran
+    Route::get('/verifikasi-pembayaran', [AdminPaymentController::class, 'index'])->name('verifikasi-pembayaran');
 });
