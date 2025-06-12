@@ -37,7 +37,7 @@
                  <div class="mb-4">
                     <label for="gambar" class="block text-gray-700 font-bold mb-2">Ganti Gambar (Opsional)</label>
                     <input type="file" name="gambar" id="gambar" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700">
-                    <p class="text-sm text-gray-500 mt-2">Gambar saat ini: <img src="{{ asset('storage/motors/' . $motor->gambar) }}" class="h-16 inline-block"></p>
+                    <p class="text-sm text-gray-500 mt-2">Gambar saat ini: <img src="{{ asset('storage/' . $motor->gambar) }}" class="h-16 inline-block"></p>
                 </div>
                 <div class="flex items-center justify-between">
                     <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
